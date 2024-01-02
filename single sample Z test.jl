@@ -43,3 +43,26 @@ plot!(;
     tickfontsize=12,
     guidefontsize=16,
 )
+
+# Null Hypothesis is false
+
+μ₀ = 5.0
+μₜ != μ₀
+
+simulated_statistics = [test_statistic(generate_data(Mₜ), μ₀, σₜ) for _ in 1:n_sim]
+distribution_under_H₁ = znc -> pdf(Normal((μₜ - μ₀) / (σₜ / √n)), znc)
+
+histogram(simulated_statistics; normalize=true, label="Simulated")
+zmin, zmax = minimum(simulated_statistics), maximum(simulated_statistics)
+z_plot = zmin:((zmax - zmin) / 100):zmax
+plot!(distribution_under_H₁, z_plot; lw=5, label="Theoretical")
+plot!(;
+    title="Distribution of single sample Z test statistic, \n when Null Hypothesis is incorrect",
+    xlimits=(zmin, zmax),
+    xlabel="z",
+    ylabel="pdf",
+    grid=false,
+    legendfontsize=12,
+    tickfontsize=12,
+    guidefontsize=16,
+)
