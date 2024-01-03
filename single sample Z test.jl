@@ -3,8 +3,10 @@
 using Random;
 Random.seed!(783376894512);
 using Pkg;
-Pkg.activate("."); Pkg.instantiate()
+Pkg.activate(".");
+Pkg.instantiate();
 using Distributions
+using Intervals
 using Plots
 
 n_sim = 1_000_000
@@ -62,6 +64,34 @@ plot!(;
     xlabel="z",
     ylabel="pdf",
     grid=false,
+    legendfontsize=12,
+    tickfontsize=12,
+    guidefontsize=16,
+)
+
+# Confidence Interval
+
+function confidence_interval(y, σₜ, α)
+    n = length(y)
+    μ̂ = sum(y) / n
+    L = μ̂ + quantile(Normal(), α / 2) * (σₜ / √n)
+    U = μ̂ + quantile(Normal(), 1 - α / 2) * (σₜ / √n)
+    return Interval(L, U)
+end
+
+α = 0.05
+
+simulated_CIs = [confidence_interval(generate_data(Mₜ), σₜ, α) for _ in 1:n_sim]
+coverage = count([μₜ in CI for CI in simulated_CIs]) / n_sim
+
+bar(["inside CI", "outside CI"], [coverage, 1 - coverage])
+plot!(;
+    title="Simulated Coverage of 95% confidence interval \n corresponding to single sample Z test",
+    ylimits=(0.0, 1.0),
+    yticks=[0.05, 0.95],
+    ylabel="proportion",
+    grid=false,
+    legend=false,
     legendfontsize=12,
     tickfontsize=12,
     guidefontsize=16,
