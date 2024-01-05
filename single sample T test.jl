@@ -46,3 +46,26 @@ plot!(;
     tickfontsize=12,
     guidefontsize=16,
 )
+
+# Null Hypothesis is false
+
+μ₀ = 5.0
+μₜ != μ₀
+
+simulated_statistics = [test_statistic(generate_data(Mₜ), μ₀) for _ in 1:n_sim]
+distribution_under_H₁ = tnc -> pdf(NoncentralT(n - 1, (μₜ - μ₀) / √(σₜ^2 / n)), tnc)
+
+histogram(simulated_statistics; normalize=true, label="Simulated")
+tmin, tmax = minimum(simulated_statistics), maximum(simulated_statistics)
+t_plot = tmin:((tmax - tmin) / 100):tmax
+plot!(distribution_under_H₁, t_plot; lw=5, label="Theoretical")
+plot!(;
+    title="Distribution of single sample T test statistic, \n when Null Hypothesis is incorrect",
+    xlimits=(tmin, tmax),
+    xlabel="t",
+    ylabel="pdf",
+    grid=false,
+    legendfontsize=12,
+    tickfontsize=12,
+    guidefontsize=16,
+)
