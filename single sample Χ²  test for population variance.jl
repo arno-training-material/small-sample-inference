@@ -46,3 +46,26 @@ plot!(;
     tickfontsize=12,
     guidefontsize=16,
 )
+
+# Null Hypothesis is false
+
+σ₀ = 3.0
+σₜ != σ₀
+
+simulated_statistics = [test_statistic(generate_data(Mₜ), σ₀) for _ in 1:n_sim]
+distribution_under_H₁ = χnc -> pdf(Chisq(n - 1) * σₜ^2 / σ₀^2, χnc)
+
+histogram(simulated_statistics; normalize=true, label="Simulated")
+χmin, χmax = minimum(simulated_statistics), maximum(simulated_statistics)
+χ_plot = χmin:((χmax - χmin) / 100):χmax
+plot!(distribution_under_H₁, χ_plot; lw=5, label="Theoretical")
+plot!(;
+    title="Distribution of Χ² test statistic for a pop. var., \n when Null Hypothesis is incorrect",
+    xlimits=(χmin, χmax),
+    xlabel="χ",
+    ylabel="pdf",
+    grid=false,
+    legendfontsize=12,
+    tickfontsize=12,
+    guidefontsize=16,
+)
