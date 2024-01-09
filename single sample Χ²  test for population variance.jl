@@ -69,3 +69,32 @@ plot!(;
     tickfontsize=12,
     guidefontsize=16,
 )
+
+# Confidence Interval
+
+function confidence_interval(y, α)
+    n = length(y)
+    μ̂ = sum(y) / n
+    σ̂² = sum((y .- μ̂) .^ 2) / (n - 1)
+    L = (n - 1) * σ̂² / quantile(Chisq(n - 1), 1 - α / 2)
+    U = (n - 1) * σ̂² / quantile(Chisq(n - 1), α / 2)
+    return Interval(L, U)
+end
+
+α = 0.05
+
+simulated_CIs = [confidence_interval(generate_data(Mₜ), α) for _ in 1:n_sim]
+coverage = count([σₜ^2 in CI for CI in simulated_CIs]) / n_sim
+
+bar(["inside CI", "outside CI"], [coverage, 1 - coverage])
+plot!(;
+    title="Simulated Coverage of 95% confidence interval \n corresponding to Χ² test statistic for a pop. var.",
+    ylimits=(0.0, 1.0),
+    yticks=[0.05, 0.95],
+    ylabel="proportion",
+    grid=false,
+    legend=false,
+    legendfontsize=12,
+    tickfontsize=12,
+    guidefontsize=16,
+)
